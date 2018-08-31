@@ -1,0 +1,51 @@
+{
+  "admin": {
+    "categories": ["get", "post", "put", "delete"],
+    "comments": ["get", "post", "put", "delete"],
+    "posts": ["get", "post", "put", "delete"],
+    "posts_categories": ["get", "post", "put", "delete"],
+    "posts_comments": ["get", "post", "put", "delete"],
+    "users": ["get", "post", "put", "delete"],
+    "users_comments": ["get", "post", "put", "delete"]
+  },
+
+  "moderator": {
+    "categories": ["get", "post", "put", "delete"],
+    "comments": ["get", "post", "put", "delete"],
+    "posts": ["get", "post", "put", "delete"],
+    "posts_categories": ["get", "post", "put", "delete"],
+    "posts_comments": ["get", "post", "put", "delete"],
+    "users": ["get", "post", "put"],
+    "users_comments": ["get", "post", "put", "delete"]
+  },
+
+  "user": {
+    "categories": "get",
+    "comments": ["get", "post", "put", "delete"],
+    "posts": ["get", "post", "put", "delete"],
+    "posts_categories": ["get", "post", "put", "delete"],
+    "posts_comments": ["get", "post", "put", "delete"],
+    "users": ["get", "put"],
+    "users_comments": ["get", "post", "put", "delete"]
+  },
+
+  "banned": {
+    "categories": "get",
+    "comments": "get",
+    "posts": "get",
+    "posts_categories": "get",
+    "posts_comments": "get",
+    "users": "get",
+    "users_comments": "get"
+  },
+
+  "visitor": {
+    "categories": "get",
+    "comments": "get",
+    "posts": "get",
+    "posts_categories": "get",
+    "posts_comments": "get",
+    "users": "get",
+    "users_comments": "get"
+  }
+}
