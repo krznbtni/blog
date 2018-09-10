@@ -1,26 +1,27 @@
 module.exports = class CookieSession {
-
   constructor(
     cookieName = 'blog-cookie',
-    removeInactiveSessionsAfterMs = 60*60*1000 // 1 hour
+    removeInactiveSessionsAfterMs = 60 * 60 * 1000 // 1 hour
   ) {
     this.sessionMem = {};
     this.cookieName = cookieName;
     this.removeInactiveSessionsAfterMs = removeInactiveSessionsAfterMs;
 
     setInterval(
-      () => { this.removeInactiveSessions(); },
+      () => {
+        this.removeInactiveSessions();
+      },
       removeInactiveSessionsAfterMs / 10 // Run every 6 minutes
     );
   }
 
-  middleware()  {
+  middleware() {
     return (req, res, next) => {
       let cookieVal = this.getCookie(req) || this.setCookie(res);
       req.session = this.getSession(cookieVal);
       req.session.lastActivity = new Date();
       next();
-    }
+    };
   }
 
   getCookie(req) {
@@ -58,7 +59,7 @@ module.exports = class CookieSession {
       let session = {
         cookieVal: cookieVal,
         user: false
-      }
+      };
 
       this.sessionMem[cookieVal] = session;
     }
@@ -69,17 +70,13 @@ module.exports = class CookieSession {
   removeInactiveSessions() {
     for (let i in this.sessionMem) {
       if (
-        this.sessionMem[i].lastActivity.getTime() + 
-        this.removeInactiveSessionsAfterMs < new Date().getTime()
+        this.sessionMem[i].lastActivity.getTime() +
+          this.removeInactiveSessionsAfterMs <
+        new Date().getTime()
       ) {
         // Remove session if inactive for too long
         delete this.sessionMem[i];
       }
     }
   }
-
-
-
-
-
-}
+};

@@ -1,10 +1,9 @@
 const pm = require('promisemaker'),
-      mysql = require('mysql'),
-      bcrypt = require('bcrypt'),
-      userRights = require('../user-rights.json');
+  mysql = require('mysql'),
+  bcrypt = require('bcrypt'),
+  userRights = require('../user-rights.json');
 
 module.exports = class Rest {
-
   // Call this method to initialize middleware.
   static start(settings) {
     Rest.settings = settings;
@@ -14,15 +13,12 @@ module.exports = class Rest {
 
   static connectToSql() {
     // Promisify MySQL and create a connection named db
-    Rest.db = pm(
-      mysql.createConnection(Rest.settings.dbCredentials),
-      {
-        rejectOnErrors: Rest.settings.runtimeErrors,
-        mapArgsToProps: {
-          query: ['rows', 'fields']
-        }
+    Rest.db = pm(mysql.createConnection(Rest.settings.dbCredentials), {
+      rejectOnErrors: Rest.settings.runtimeErrors,
+      mapArgsToProps: {
+        query: ['rows', 'fields']
       }
-    );
+    });
   }
 
   // Create one instance per request
@@ -44,7 +40,7 @@ module.exports = class Rest {
       // Return if url was not '/rest'
       return;
     }
-    
+
     if (!this.checkUserRights()) {
       this.res.sendStatus(403);
       this.res.json({ Error: 'Not allowed' });
@@ -81,7 +77,7 @@ module.exports = class Rest {
   checkUserRights() {
     let ok = false;
     let role = this.req.session.user && this.req.session.user.role;
-    
+
     if (!role) {
       role = 'visitor';
     }
@@ -120,9 +116,7 @@ module.exports = class Rest {
     if (this.id) {
       queryString += ' WHERE ' + this.idColName + ' = ?';
       params.push(this.id);
-    }
-
-    else {
+    } else {
       queryString += '[wherecondition]';
     }
 
@@ -166,7 +160,9 @@ module.exports = class Rest {
     }
 
     if (where != '') {
-      queryString = queryString.split('[wherecondition]').join(' WHERE ' + where + ' ');
+      queryString = queryString
+        .split('[wherecondition]')
+        .join(' WHERE ' + where + ' ');
     } else {
       queryString = queryString.split('[wherecondition]').join('');
     }
@@ -178,11 +174,9 @@ module.exports = class Rest {
     // Error from MySQL
     if (result.constructor === Error) {
       this.res.sendStatus(500);
-    }
-
-    else if (this.id && result.length === 0) {
+    } else if (this.id && result.length === 0) {
       this.res.sendStatus(500);
-      this.res.json({Error: 'No post'});
+      this.res.json({ Error: 'No post' });
       return;
     }
 
@@ -196,7 +190,7 @@ module.exports = class Rest {
 
   async delete() {
     let result = await this.query(
-      'DELETE FROM `' + this.table + '` WHERE `' + this.idColName + '` = ?' ,
+      'DELETE FROM `' + this.table + '` WHERE `' + this.idColName + '` = ?',
       [this.id]
     );
 
@@ -208,7 +202,6 @@ module.exports = class Rest {
   }
 
   async post() {
-
     if (this.table == 'users') {
       if (await this.checkDuplicateUser()) {
         return;
@@ -223,7 +216,8 @@ module.exports = class Rest {
   }
 
   async set() {
-    let queryString = (this.id ? 'UPDATE ' : 'INSERT INTO ') + '`' + this.table + '` SET ? ';
+    let queryString =
+      (this.id ? 'UPDATE ' : 'INSERT INTO ') + '`' + this.table + '` SET ? ';
 
     // Check if the table is 'users'
     // then hash 'req.body.password'
@@ -235,7 +229,7 @@ module.exports = class Rest {
 
     // Run query with or without 'id'.
     let result = await this.query(
-      queryString + (this.id ? (' WHERE `' + this.idColName + '` = ?') : ''),
+      queryString + (this.id ? ' WHERE `' + this.idColName + '` = ?' : ''),
       [this.req.body, this.id]
     );
 
@@ -244,13 +238,13 @@ module.exports = class Rest {
 
       result = {
         status: result.sqlMessage
-      }
+      };
     }
 
     if (this.table == 'users' && this.id == this.req.session.user.id) {
-      let userFromDb = await this.query('SELECT * FROM users WHERE id = ?',
-        [this.id]
-      );
+      let userFromDb = await this.query('SELECT * FROM users WHERE id = ?', [
+        this.id
+      ]);
 
       userFromDb = userFromDb[0];
       delete userFromDb.password;
@@ -260,16 +254,16 @@ module.exports = class Rest {
       result = {
         user: userFromDb,
         result: result
-      }
+      };
     }
 
     this.res.json(result);
   }
 
   async checkDuplicateUser() {
-    let s = await this.query('SELECT email FROM users WHERE email = ?',
-      [this.req.body.email]
-    );
+    let s = await this.query('SELECT email FROM users WHERE email = ?', [
+      this.req.body.email
+    ]);
 
     if (s.length) {
       this.res.json({
@@ -290,4 +284,4 @@ module.exports = class Rest {
     let result = await Rest.db.query(query, params);
     return result.rows;
   }
-}
+};
